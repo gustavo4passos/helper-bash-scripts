@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# 
+# CMAKER
+# Builds and runs CMake projects using vcpkg as its package manager.
+#
+# Should be run at same level as the CMakeLists.txt file.
+#
+
 not_cmake_root_error_message="Error: Not a CMake project root. This should be run at the same level as the CMakeLists.txt file."
 
 rebuild_cmake() 
@@ -58,7 +65,7 @@ run_command_if_cmake_root()
 
 print_help() 
 {
-	echo "Build and run CMake projects. I have written this script for myself. --Gustavo Passos" 
+	echo "Build and run CMake projects." 
 	echo "Commands:"
 	echo "	b  | build	- Build current project."
 	echo "	r  | run	- Run current project. It will look for an executable with the same name of the project, inside build/bin"
