@@ -1,0 +1,88 @@
+#!/bin/bash
+
+not_cmake_root_error_message="Error: Not a CMake project root. This should be run at the same level as the CMakeLists.txt file."
+
+rebuild_cmake() 
+{
+	rm -rf build
+	mkdir build
+	pushd build
+	cmake ../ -G Ninja -DCMAKE_TOOLCHAIN_FILE=/home/gustavo/Downloads/vcpkg/scripts/buildsystems/vcpkg.cmake
+	popd
+}
+
+build() 
+{
+	pushd build	 
+	ninja
+	popd
+}
+
+get_project_name() 
+{
+	grep CMAKE_PROJECT_NAME CMakeCache.txt | awk -F= '{print $2}' 
+}
+
+run()
+{
+	pushd build/
+	project_name=$(get_project_name)
+	pushd bin
+	./${project_name}
+	popd
+	popd
+}
+
+clean() 
+{
+	rm -rf build 
+}
+
+is_cmake_folder() 
+{
+	# This command will return 0 if CMakeLists.txt is present	
+	# and 1 otherwise.
+	find . -maxdepth 1 -name CMakeLists.txt | grep .
+}
+
+run_command_if_cmake_root()
+{
+	is_cmake_folder 
+	if [[ $? -eq 0 ]]; then
+		$1
+	else
+		echo $not_cmake_root_error_message 
+		exit 1
+	fi
+}
+
+print_help() 
+{
+	echo "Build and run CMake projects. I have written this script for myself. --Gustavo Passos" 
+	echo "Commands:"
+	echo "	b  | build	- Build current project."
+	echo "	r  | run	- Run current project. It will look for an executable with the same name of the project, inside build/bin"
+	echo "	p  | prepare	- Prepare current project. It usesd Ninja by default. Maybe I will make this a parameter later... Maybe use an env variable?"
+	echo "	c  | clean	- Remove build folder"
+	echo "	br | build-run	- Build and run the current project"
+}
+
+case $1 in 
+	b  | build)				run_command_if_cmake_root build	
+							;;
+	p  | prepare)	 		run_command_if_cmake_root rebuild_cmake	
+							;;
+	r  | run)	 			run_command_if_cmake_root run
+							;;
+	c  | clean)				run_command_if_cmake_root clean
+							;;
+	br | clean)				run_command_if_cmake_root build
+							run
+							;;
+	-h | --help)	 		print_help	
+							;;
+	* )						echo "Unkown command $1."
+							print_help
+							exit 1
+							;;
+esac
