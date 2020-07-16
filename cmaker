@@ -3,7 +3,7 @@
 # 
 # CMAKER
 # Builds and runs CMake projects using vcpkg as its package manager.
-#
+# and Ninja as the default build system.
 # Should be run at same level as the CMakeLists.txt file.
 #
 
